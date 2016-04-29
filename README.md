@@ -7,23 +7,87 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what
-PSRs you support to avoid any confusion with users and contributors.
+This package allows you to get a balance, transaction history, and make mass payments in Perfect Money (perfectmoney.is)
 
 ## Install
 
 Via Composer
 
 ``` bash
+
 $ composer require reg2005/PmPayLaravel
+
 ```
 
-## Usage
+## Configuration
 
 ``` php
-$skeleton = new League\Skeleton();
-echo $skeleton->echoPhrase('Hello, League!');
+
+Add in config/app.php in providers
+
+reg2005\PayAssetsLaravel\PayAssetsLaravelServiceProvider::class,
+
+reg2005\PmPayLaravel\PmServiceProvider::class,
+
 ```
+## Migration
+
+``` bash
+
+artisan vendor:publish
+
+artisan migrate
+
+```
+
+You need to add in table reg2005_accounts Perfect Money account (enabled access to the API, and Access mask):
+
+Login, Password, type = PM;
+
+## Proxy
+
+I recommend to use a proxy to do so, simply add them to the table reg2005_proxys:
+
+ip = *.*.*.*:port:http
+
+Example: 80.78.251.195:2004:http
+
+## Test
+
+If you have a APP_DEBUG=true (in .env file)
+
+open in your browser http://yourdomain.com/pay/pm
+
+##Use Cron
+
+Here is the only Cron entry you need to add to your server:
+
+```
+    * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
+
+``` bash
+
+[link]: https://laravel.com/docs/master/scheduling
+
+
+Add or replace in app/console/Kernel.php this method:
+
+```
+    protected function schedule(Schedule $schedule)
+    {
+
+        $schedule->call(function () {
+
+            $res =  (new PmController())->index();
+
+        })->everyMinute();
+    }
+
+``` php
+
+And
+
+
 
 ## Change log
 
@@ -32,7 +96,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 ## Testing
 
 ``` bash
-$ composer test
+$ phpunit
 ```
 
 ## Contributing

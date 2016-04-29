@@ -14,12 +14,15 @@ class CreateReg2005PmWallets extends Migration {
     {
         Schema::create('reg2005_pm_wallets', function(Blueprint $table)
         {
-            $table->string('id')->unique();
 
-            $table->text('name')->nullable();
+            $table->increments('id');
+
+            $table->string('name')->unique();
             $table->text('currency')->nullable();
             $table->decimal('amount', 10)->nullable()->default(0);
             $table->integer('account');
+
+            $table->timestamp('last_use')->nullable();
 
 
             $table->timestamps();

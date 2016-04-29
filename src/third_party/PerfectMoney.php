@@ -80,8 +80,14 @@ class PerfectMoney {
 
 		*/
 
+        if($dAmount < 0.2)
+            return NULL;
+
+        $dAmount = (string) number_format($dAmount, 2);
+
         // trying to open URL to process PerfectMoney Spend request
-        $out = $this->curl('https://perfectmoney.is/acct/confirm.asp?AccountID='.$this->account.'&PassPhrase='.$this->pass.'&Payer_Account='.$from_account.'&Payee_Account='.$to_account.'&Memo='.$sComment.'&Amount='.$dAmount.'&PAY_IN=1&PAYMENT_ID='.$tid);
+        $out = $this->curl(
+            'https://perfectmoney.is/acct/confirm.asp?AccountID='.$this->account.'&PassPhrase='.$this->pass.'&Payer_Account='.$from_account.'&Payee_Account='.$to_account.'&Memo='.$sComment.'&Amount='.$dAmount.'&PAY_IN=1&PAYMENT_ID='.$tid);
 
         // searching for hidden fields
         if(!preg_match_all("/<input name='(.*)' type='hidden' value='(.*)'>/", $out, $result, PREG_SET_ORDER)){
@@ -101,9 +107,10 @@ class PerfectMoney {
     # Метод : получение информации из истории транзакций.
     # Принимает : дату конца и определяет дату начала (отнимая 29 дней).
     # Обязательно! Разница между датами не более 30 дней!
-    public function GetHistory( $sFinishDate='17.1.2016' ) {
+    public function GetHistory($sStartDate = '10.1.2016',  $sFinishDate='17.1.2016' ) {
 
-        $sStartDate = (new Carbon($sFinishDate) )->subDays(29)->format('d.m.Y');
+        if(!$sStartDate)
+            $sStartDate = (new Carbon($sFinishDate) )->subDays(29)->format('d.m.Y');
 
         list($sd, $sm, $sy) = explode('.', $sStartDate);
         list($ed, $em, $ey) = explode('.', $sFinishDate);
@@ -196,7 +203,7 @@ class PerfectMoney {
         $ar="";
         foreach($result as $item){
             $ar[] = [
-                'id' => $item[1],
+                'name' => $item[1],
                 'currency' => $this->get_currency_from_id($item[1]),
                 'amount' => $item[2]
             ];

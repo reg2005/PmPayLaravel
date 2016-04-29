@@ -9,7 +9,10 @@ class History extends Model {
 
     protected $table = 'reg2005_pm_history';
 
-    public function getLastTransaction(){
+    public function getLastTransaction($id = NULL){
+
+        if($id)
+            $this->where('accountId', '=', $id);
 
         $item = $item = $this
             ->orderBy('date', 'DESC')
@@ -39,7 +42,10 @@ class History extends Model {
 
         if(isset($data['batch'])) {
 
-            $item = $this->where('batch', '=', $data['batch'])->first();
+            $item = $this
+                ->where('batch', '=', $data['batch'])
+                ->where('amount', '=', $data['amount'])
+                ->first();
 
             if (!$item) {
 

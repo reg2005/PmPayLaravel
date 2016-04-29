@@ -16,6 +16,8 @@ class CreateReg2005PmHistory extends Migration {
         {
             $table->increments('id');
 
+            $table->integer('batch');
+
             $table->timestamp('date');
 
             $table->integer('accountId');
@@ -25,8 +27,6 @@ class CreateReg2005PmHistory extends Migration {
             $table->text('type');
 
             $table->boolean('income');
-
-            $table->integer('batch');
 
             $table->text('currency');
 

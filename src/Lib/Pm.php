@@ -14,6 +14,7 @@ use reg2005\PayAssetsLaravel\Entities\Accounts;
 use reg2005\PmPayLaravel\Third_party\PerfectMoney;
 use reg2005\PmPayLaravel\Entities\History;
 use reg2005\PmPayLaravel\Entities\Wallets;
+use reg2005\PayAssetsLaravel\Entities\SchedulePays;
 
 use Exception;
 use Carbon\Carbon;
@@ -23,6 +24,8 @@ class Pm {
     private $pm;
 
     private $account;
+
+    private $proxy = NULL;
 
     public $type = 'PM';
 
@@ -59,18 +62,124 @@ class Pm {
 
         $this->get_account();
 
-        $proxy = (new Proxy)->get_proxy();
+        $this->proxy = (new Proxy)->get_proxy();
 
-        $this->pm = new PerfectMoney($this->account->login, $this->account->password, $proxy->ip);
+        $this->pm = new PerfectMoney($this->account->login, $this->account->password, $this->proxy);
     }
 
     public function run(){
+
+
 
         $res['wallets'] = $this->GetBalances();
 
         $res['history'] = $this->history();
 
+        $res['payout'] = $this->payout();
+
+
         return $res;
+    }
+
+    public function payout(){
+
+        $schedules = (new SchedulePays)->getUnpayedsScore('PM');
+
+        $res = [];
+
+        foreach($schedules as $schedule){
+
+            $payWallet = (new Wallets)->getWalletForPay(
+                $schedule->amount,
+                $schedule->currency,
+                $schedule->destination
+            );
+
+            if (!$payWallet){
+
+                $this->log->insert('Wallet for pay not found, Check enough money');
+
+                return NULL;
+
+            }
+
+            (new SchedulePays)->setTimeout($schedule);
+
+            $payResult = $this->payment(
+                $schedule->destination,
+                $schedule->amount,
+                $payWallet->name,
+                $payWallet->account,
+                $schedule->comment
+            );
+
+            $pay = (new SchedulePays)->postPayInfoUpdate($schedule, $payResult['transaction'], $payResult['account'], $payWallet->id);
+
+            $res[] = [$payResult, $payWallet];
+
+        }
+
+    return $res;
+
+
+    }
+
+    function payment($destination ='', $amount = '', $from = '', $account_id, $comment){
+
+
+        $acc = new Accounts;
+
+        $account = (new Accounts)->getById($account_id);
+
+        $res = [
+            'transaction' => NULL,
+            'account' => ($account) ? $account->id : NULL,
+        ];
+
+        if(!$res)
+            return NULL;
+
+        $proxy = (new Proxy)->get_proxy();
+
+
+
+        try{
+
+            $pm = new PerfectMoney($account->login, $account->password, $proxy);
+
+            $transaction = $pm->SendMoney($from, $destination, $amount, $comment);
+
+            //$transaction['PAYMENT_BATCH_NUM'] = 1;
+
+            if( isset($transaction['PAYMENT_BATCH_NUM']) ){
+                $res['transaction'] = $transaction['PAYMENT_BATCH_NUM'];
+
+                $message = 'Pay success! transaction: '.$res['transaction'].', amount: '.$amount.' . client '.$destination.' wallet: '.$from.', account: '.$accoun->login;
+
+                $this->log->insert($message);
+            }
+
+            if( isset($transaction['ERROR']) ){
+
+                $message = $transaction['ERROR'];
+
+                $this->log->insert($message);
+            }
+
+
+
+        }catch(Exception $e){
+
+            $message = 'Pay FAIL! amount: '.$amount.' . client '.$destination.' wallet: '.$from.', account: '.$account->login;
+
+            $this->log->insert($message);
+
+            $this->log->insert( $e->getMessage()) ;
+
+        }
+
+        return $res;
+
     }
 
     public function GetBalances(){
@@ -79,9 +188,13 @@ class Pm {
 
         foreach($balances as $balance) {
 
-            $balance['account_id'] = $this->account->id;
+            $balance['account'] = $this->account->id;
 
             (new Wallets)->insert_wallet_data($balance);
+
+            $balances = (new Wallets)->GetGroupBalances($this->account->id);
+
+            (new Accounts)->updateDataById($balances, $this->account->id);
 
         }
 
@@ -90,11 +203,13 @@ class Pm {
 
     public function history(){
 
-        $endDate = Carbon::now()->subDays(30)->format('d.m.Y');
+        $endDate = Carbon::now()->addDay(1)->format('d.m.Y');
 
-        $transactions = $this->pm->GetHistory($endDate);
+        $startDate = (new History)->getLastTransaction($this->account->id);
 
-        //dd($transactions);
+        $startDate = ($startDate) ? ( new Carbon( $startDate->date ) )->format('d.m.Y') : NULL;
+
+        $transactions = $this->pm->GetHistory($startDate, $endDate);
 
         $res = [];
 
@@ -125,7 +240,7 @@ class Pm {
             $this->account->fill($turnovers);
 
             if($lastTransaction)
-                $this->account->last_history = $lastTransaction->date();
+                $this->account->last_history = $lastTransaction->date;
 
             $this->account->save();
 
