@@ -119,7 +119,7 @@ class Pm {
 
         }
 
-    return $res;
+        return $res;
 
 
     }
@@ -129,15 +129,12 @@ class Pm {
 
         $acc = new Accounts;
 
-        $account = (new Accounts)->getById($account_id);
+        $account = $acc->getById($account_id);
 
         $res = [
             'transaction' => NULL,
             'account' => ($account) ? $account->id : NULL,
         ];
-
-        if(!$res)
-            return NULL;
 
         $proxy = (new Proxy)->get_proxy();
 
@@ -154,7 +151,7 @@ class Pm {
             if( isset($transaction['PAYMENT_BATCH_NUM']) ){
                 $res['transaction'] = $transaction['PAYMENT_BATCH_NUM'];
 
-                $message = 'Pay success! transaction: '.$res['transaction'].', amount: '.$amount.' . client '.$destination.' wallet: '.$from.', account: '.$accoun->login;
+                $message = 'Pay success! transaction: '.$res['transaction'].', amount: '.$amount.' . client '.$destination.' wallet: '.$from.', account: '.$account->login;
 
                 $this->log->insert($message);
             }
@@ -165,8 +162,6 @@ class Pm {
 
                 $this->log->insert($message);
             }
-
-
 
         }catch(Exception $e){
 
@@ -219,7 +214,9 @@ class Pm {
 
                 $item['date'] = (new Carbon($item['date'] ))->toDateTimeString();
 
-                $item['income'] = ($item['type'] == 'Income');
+                $item['amount'] = abs( $item['amount'] );
+
+                $item['incoming'] = ($item['type'] == 'Income');
 
                 $item['accountId'] = $this->account->id;
 

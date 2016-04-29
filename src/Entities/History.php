@@ -2,10 +2,11 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use reg2005\PayAssetsLaravel\Entities\Exchange;
 
 class History extends Model {
 
-    protected $fillable = ['date', 'accountId', 'time', 'type', 'income', 'batch', 'currency', 'amount', 'fee', 'to', 'from', 'memo'];
+    protected $fillable = ['date', 'accountId', 'time', 'type', 'incoming', 'batch', 'currency', 'amount', 'fee', 'to', 'from', 'memo'];
 
     protected $table = 'reg2005_pm_history';
 
@@ -21,21 +22,45 @@ class History extends Model {
         return $item;
     }
 
-    public function countMounth(){
+    public function countMounth()
+    {
+
+        $currencies = [
+            'USD', 'EUR', 'GOLD', 'RUB'
+        ];
+
+
 
         $startOfMonth = (Carbon::now()->startOfMonth());
 
-        $item['in_turnover_current_monthly'] = $this
-            ->where('date', '>=', $startOfMonth )
-            ->where('income', '=', TRUE)
-            ->sum('amount');
+        $inUsd = 0;
+        $outUsd = 0;
 
-        $item['out_turnover_current_monthly'] = $this
-            ->where('date', '>=', $startOfMonth )
-            ->where('income', '=', FALSE)
-            ->sum('amount');
+        foreach ($currencies as $currency){
 
-        return $item;
+            $item['in'][$currency] = $this
+                ->where('currency', '=', $currency)
+                ->where('date', '>=', $startOfMonth)
+                ->where('incoming', '=', TRUE)
+                ->sum('amount');
+
+            $inUsd += (new Exchange())->Xchange($currency, $item['in'][$currency] );
+
+            $item['out'][$currency] = $this
+                ->where('currency', '=', $currency)
+                ->where('date', '>=', $startOfMonth)
+                ->where('incoming', '=', FALSE)
+                ->sum('amount');
+
+            $outUsd += (new Exchange())->Xchange($currency, $item['out'][$currency] );
+
+        }
+
+        $res['in_turnover_current_monthly'] = $inUsd;
+
+        $res['out_turnover_current_monthly'] = $outUsd;
+
+        return $res;
     }
 
     public function createTransaction($data){
@@ -43,7 +68,7 @@ class History extends Model {
         if(isset($data['batch'])) {
 
             $item = $this
-                ->where('batch', '=', $data['batch'])
+                ->where('incoming', '=', $data['incoming'])
                 ->where('amount', '=', $data['amount'])
                 ->first();
 

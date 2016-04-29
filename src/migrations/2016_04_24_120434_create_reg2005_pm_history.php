@@ -26,7 +26,7 @@ class CreateReg2005PmHistory extends Migration {
 
             $table->text('type');
 
-            $table->boolean('income');
+            $table->boolean('incoming');
 
             $table->text('currency');
 

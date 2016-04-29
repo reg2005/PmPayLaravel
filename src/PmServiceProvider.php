@@ -3,7 +3,6 @@
 namespace reg2005\PmPayLaravel;
 
 use Illuminate\Support\ServiceProvider;
-//use reg2005\PmPayLaravel\Http\Middleware\OnlyCli;
 
 class PmServiceProvider extends ServiceProvider
 {

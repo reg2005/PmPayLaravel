@@ -2,6 +2,7 @@
 
 namespace reg2005\PmPayLaravel\Third_party;
 use Carbon\Carbon;
+use Exception;
 
 class PerfectMoney {
 
@@ -81,7 +82,7 @@ class PerfectMoney {
 		*/
 
         if($dAmount < 0.2)
-            return NULL;
+            throw new Exception('Small sum: '.$dAmount);
 
         $dAmount = (string) number_format($dAmount, 2);
 

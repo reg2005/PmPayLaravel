@@ -1,6 +1,7 @@
 <?php namespace reg2005\PmPayLaravel\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use reg2005\PayAssetsLaravel\Entities\Exchange;
 use Carbon\Carbon;
 
 class Wallets extends Model {
@@ -51,9 +52,15 @@ class Wallets extends Model {
             'BTC' => 0,
         ];
 
+        $inUsd = 0;
+
         foreach($items as $item){
-            $res[ $item->currency ] = $item->amount + $res[ $item->currency ];
+            $res[ $item->currency ] += $item->amount;
+
+            $inUsd += (new Exchange())->Xchange($item->currency, $item->amount );
         }
+
+        $res['BalanceInUsd'] = $inUsd;
 
         return $res;
     }
