@@ -1,0 +1,48 @@
+{
+    "name": "reg2005/PmPayLaravel",
+    "type": "library",
+    "description": "Perfect Money payment library for Laravel",
+    "keywords": [
+        "reg2005",
+        "QiwiBot"
+    ],
+    "homepage": "https://github.com/reg2005/PmPayLaravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "reg2005",
+            "email": "cmp08@ya.ru",
+            "homepage": "beatlelab.ru",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "illuminate/support": "~5.1",
+        "reg2005/payassetslaravel": "1.*"
+        "php" : "~5.5|~7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "4.*",
+        "scrutinizer/ocular": "~1.1",
+        "squizlabs/php_codesniffer": "~2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "reg2005\\PmPayLaravel\\": "src",
+            "reg2005\\PmPayLaravel\\Http\\Controllers\\": "src/Http/Controllers/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "reg2005\\PmPayLaravel\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
