@@ -1,7 +1,7 @@
 {
     "name": "reg2005/pmpaylaravel",
     "type": "library",
-    "description": "Perfect Money payment library for Laravel",
+    "description": "This package allows you to get a balance, transaction history, and make mass payments in Perfect Money (http://perfectmoney.is)",
     "keywords": [
         "reg2005",
         "QiwiBot"
