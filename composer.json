@@ -4,7 +4,8 @@
     "description": "This package allows you to get a balance, transaction history, and make mass payments in Perfect Money (http://perfectmoney.is)",
     "keywords": [
         "reg2005",
-        "QiwiBot"
+        "Perfect Money",
+        "Pay Laravel"
     ],
     "homepage": "https://github.com/reg2005/PmPayLaravel",
     "license": "MIT",
