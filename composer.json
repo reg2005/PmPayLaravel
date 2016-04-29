@@ -19,7 +19,7 @@
     "require": {
         "illuminate/support": "~5.1",
         "reg2005/PayAssetsLaravel": "1.*",
-        "php": ">=5.5.9",
+        "php": ">=5.5.9"
     },
     "require-dev": {
         "phpunit/phpunit" : "4.*",
