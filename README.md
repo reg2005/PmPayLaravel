@@ -58,21 +58,21 @@ If you have a APP_DEBUG=true (in .env file)
 
 open in your browser http://yourdomain.com/pay/pm
 
-##Use Cron
+## Use Cron
 
 Here is the only Cron entry you need to add to your server:
 
-```
+``` bash
     * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
 
-``` bash
+```
 
 [link]: https://laravel.com/docs/master/scheduling
 
 
 Add or replace in app/console/Kernel.php this method:
 
-```
+``` php
     protected function schedule(Schedule $schedule)
     {
 
@@ -83,7 +83,7 @@ Add or replace in app/console/Kernel.php this method:
         })->everyMinute();
     }
 
-``` php
+```
 
 And
 
