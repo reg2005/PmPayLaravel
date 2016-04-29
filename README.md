@@ -67,7 +67,7 @@ Here is the only Cron entry you need to add to your server:
 
 ```
 
-[link]: https://laravel.com/docs/master/scheduling
+https://laravel.com/docs/master/scheduling
 
 
 Add or replace in app/console/Kernel.php this method:
@@ -84,10 +84,6 @@ Add or replace in app/console/Kernel.php this method:
     }
 
 ```
-
-And
-
-
 
 ## Change log
 
