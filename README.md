@@ -48,7 +48,7 @@ Login, Password, type = PM;
 
 I recommend to use a proxy to do so, simply add them to the table reg2005_proxys:
 
-ip = *.*.*.*:port:http
+ip = host:port:protocol
 
 Example: 80.78.251.195:2004:http
 
