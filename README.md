@@ -7,7 +7,7 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-This package allows you to get a balance, transaction history, and make mass payments in Perfect Money (perfectmoney.is)
+This package allows you to get a balance, transaction history, and make mass payments in Perfect Money (http://perfectmoney.is)
 
 ## Install
 
